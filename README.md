@@ -47,4 +47,4 @@ fr.show()
 
 # 效果展示
 
-![show](/home/dax/my/git/frelation/show.gif)
+![show](show.gif)
