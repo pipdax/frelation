@@ -1,4 +1,4 @@
-# frelation
+# frelation-特征构造关系
 在机器学习中，构造的特征多且乱，这个库用来展示已经构造的特征关系，方便查漏补缺。
 
 往往在构造过程中，淹没在巨量的构造函数中无法自拔。
@@ -12,17 +12,19 @@
    或者
 
    ```shell
-   git clone 
+   git clone https://github.com/pipdax/frelation.git
    ```
 
    目录结构如下
 
-   ├── frelation
-   │   ├── frelation.py
-   │   └── \_\_init\_\_.py
+   ├── dist
+   │   └── frelation-0.0.1.tar.gz
+   ├── frelation.py
+   ├──\_\_init\_\_.py
    ├── LICENSE
    ├── README.md
-   └── setup.py
+   ├── setup.py
+   └── show.gif
 
    2. 使用setup.py安装
 
@@ -34,6 +36,7 @@ python setup.py install
 # 使用实例
 
 ```python
+from frelation import frelation
 fr = frelation("The Title", "The subtitle")
 fr.addNodes(['a', 'b', 'c'], 0)
 fr.addNodes(['d', 'e'], 3)

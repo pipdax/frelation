@@ -9,7 +9,7 @@ setup(
         author='pipdax',
         author_email='pipdax@126.com',
         url='https://github.com/pipdax/frelation',
-        packages=['frelation'],
+        py_modules=['frelation'],
         install_requires=[    # 依赖列表
         'pyecharts>=0.5.8',
     ]
