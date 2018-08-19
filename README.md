@@ -25,12 +25,16 @@
    ├── README.md
    ├── setup.py
    └── show.gif
-
+   
    2. 使用setup.py安装
 
-```she
+```shell
 cd frelation
 python setup.py install
+```
+**注意**:本库依赖pyecharts，如果在安装过程中，没有自动安装pyecharts，请手动安装。
+```shell
+pip install pyecharts
 ```
 
 # 使用实例
