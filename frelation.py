@@ -118,6 +118,7 @@ class frelation():
         elif isinstance(nodes, (list, Iterable)):
             if isinstance(nodes, Iterable):
                 nodes = list(nodes)
+            nodes = list(set(nodes))# remove the repeat nodes
             exist_nodes = []
             for i in nodes:
                 if isinstance(i, str):
