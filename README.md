@@ -7,7 +7,7 @@
 
 # 安装
 
-1. 到https://github.com/pipdax/frelation 中下载文件，
+1. 下载源文件包解压https://github.com/pipdax/frelation/tree/master/dist/frelation-0.0.1.tar.gz ，
 
    或者
 
@@ -17,14 +17,14 @@
 
    目录结构如下
 
-   ├── dist
-   │   └── frelation-0.0.1.tar.gz
-   ├── frelation.py
-   ├──\_\_init\_\_.py
-   ├── LICENSE
-   ├── README.md
-   ├── setup.py
-   └── show.gif
+   ├── dist  
+   │   └── frelation-0.0.1.tar.gz  
+   ├── frelation.py  
+   ├──\_\_init\_\_.py  
+   ├── LICENSE  
+   ├── README.md  
+   ├── setup.py  
+   └── show.gif  
    
    2. 使用setup.py安装
 
