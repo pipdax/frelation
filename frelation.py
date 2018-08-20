@@ -248,7 +248,7 @@ class frelation():
         nodes = []
         nodes_pos = [0, 0]
         symbol_width = max(map(len, _nodes))*10 # get the max charactor length
-		symbol_width = min(max(symbol_width,80), 200)
+        symbol_width = min(max(symbol_width,80), 200)
         for cat_id, cats in enumerate(self.nodes.keys()):
             for node_id, cat_nodes in enumerate(self.nodes[cats]):
                 self.categories.append(cats)
