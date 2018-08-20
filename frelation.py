@@ -1,6 +1,6 @@
 import pyecharts
 from pyecharts import Graph
-
+from collections import Iterable
 
 class frelation():
     '''
@@ -13,7 +13,7 @@ class frelation():
     title: string
         The title of whole picture
     subtitle: string
-        The discription of this picture
+        The description of this picture
 
     Returns
     ---
@@ -43,11 +43,12 @@ class frelation():
         self.title = title
         self.subtitle = subtitle
         self.nodes = {}  # format like {'category1':['node1','node2'], 'category2':['node3','node4']}
+        self.all_nodes = [] # store all the nodes name without category, format is ['node1','node2',...]
         self.links = []  # format like [{'source':'node1','target':'node2'},{'source':'node3','target':'node4'}]
         self.categories = []  # format like [0,0,1,1,...], the same length as self.nodes values
         self.node_style = {"graph_layout": 'none', "line_color": 'red', "line_curve": 0.08,
                            "is_focusnode": True, "is_roam": True, "is_label_show": True,
-                           "label_pos": 'inside', "label_text_color": '#fff',
+                           "label_pos": 'insideLeft', "label_text_color": '#fff',
                            "label_text_size": 15, "label_emphasis_textsize": 17, }
 
     def addNode(self, node, category=0):
@@ -75,7 +76,11 @@ class frelation():
         if category not in self.nodes.keys():
             self.nodes[category] = []
 
-        self.nodes[category].extend(node)
+        if self.if_node_exist(node):
+            print("Warning: The following nodes has the same name as add before!")
+            print(node)
+        else:
+            self.nodes[category].append(node)
         return self.nodes
 
     def addNodes(self, nodes, category=0):
@@ -103,17 +108,60 @@ class frelation():
         if category not in self.nodes.keys():
             self.nodes[category] = []
 
-        if isinstance(nodes, list):
+        if isinstance(nodes, str):
+            if self.if_node_exist(nodes):
+                print("Warning: The following nodes has the same name as add before!")
+                print(nodes)
+            else:
+                self.nodes[category].append(nodes)
+                self.all_nodes = list(set(self.all_nodes)|set([nodes]))
+        elif isinstance(nodes, (list, Iterable)):
+            if isinstance(nodes, Iterable):
+                nodes = list(nodes)
+            exist_nodes = []
             for i in nodes:
                 if isinstance(i, str):
-                    self.nodes[category].append(i)
+                    if self.if_node_exist(i):
+                        exist_nodes.append(i)
+                    else:
+                        self.nodes[category].append(i)
                 else:
                     raise TypeError("Please intput node as string or string list")
-        elif isinstance(nodes, str):
-            self.nodes[category].append(nodes)
+            if exist_nodes != []:
+                print("Warning: The following nodes has the same name as add before!")
+                print(exist_nodes)
+            self.all_nodes = list(set(self.all_nodes)|set(nodes))
         else:
             raise TypeError("Please intput node as string or string list")
         return self.nodes
+
+    def if_node_exist(self, node):
+        '''
+        Check if the node has added.
+
+        Parameters
+        ---
+        node: string or string list
+
+        Returns
+        ---
+        True or False
+            True: Exist
+        '''
+        if isinstance(node, str):
+            if node in self.all_nodes:
+                return True
+            else:
+                return False
+        elif isinstance(node, (list, Iterable)):
+            if isinstance(node, Iterable):
+                node = list(node)
+            exist_list = list(set(self.all_nodes)&set(node))
+            if exist_list == []:
+                return False
+            else:
+                return True
+
 
     def addLink(self, left_node, mid_node, right_node=None):
         '''
@@ -142,7 +190,7 @@ class frelation():
 
         if right_node is not None:
             if not isinstance(right_node, str):
-                raise TyepError("Please input right_node as string")
+                raise TypeError("Please input right_node as string")
             _link = {"source": mid_node, "target": right_node}
             self.links.append(_link)
         return self.links
@@ -166,8 +214,11 @@ class frelation():
         string list
             Current links that has added before.
         '''
-        if not isinstance(links, list):
+        if not isinstance(links, (list, Iterable)):
             raise TypeError("Please uses dict list like [{'source':'node1','target':'node2'}]")
+        else:
+            if isinstance(links, Iterable):
+                links = list(links)
         for link in links:
             if not isinstance(link, dict) or 'source' not in link.keys() or 'target' not in link.keys():
                 raise TypeError("Please uses dict list like [{'source':'node1','target':'node2'}]")
@@ -187,25 +238,26 @@ class frelation():
         '''
         # 处理link节点，删除不在nodes中的节点
         _link_nodes = set([x['source'] for x in self.links]) | set([x['target'] for x in self.links])
-        _nodes = []
-        for k in self.nodes.keys():
-            _nodes.extend(self.nodes[k])
+        _nodes = self.all_nodes
         _del_link_nodes = _link_nodes - set(_nodes)
         self.links = list(filter(lambda x: x['source'] not in _del_link_nodes
                                            and x['target'] not in _del_link_nodes, self.links))
 
-        graph = Graph(self.title, self.subtitle)
+        graph = Graph(self.title, self.subtitle, height=len(_nodes)*25)
         nodes = []
         nodes_pos = [0, 0]
+        symbol_width = max(map(len, _nodes))*10 # get the max charactor length
+		symbol_width = min(max(symbol_width,80), 200)
         for cat_id, cats in enumerate(self.nodes.keys()):
             for node_id, cat_nodes in enumerate(self.nodes[cats]):
                 self.categories.append(cats)
-                nodes_pos = [cat_id * 150, node_id * 30]
+                nodes_pos = [cat_id * 150, node_id * 20]
                 nodes.append({"name": cat_nodes,
                               "x": nodes_pos[0], "y": nodes_pos[1],
-                              'symbolSize': [100, 30],
+                              'symbolSize': [symbol_width, 20],
                               "symbol": 'rect',
-                              "category": (cats % 20)})
+                              "category": (cats % 20),
+                              "graph_repulsion":10000})
         graph.add("", nodes, self.links, categories=self.categories, **self.node_style)
 
         # graph.render() I do not know why this API is not work in my environment.
