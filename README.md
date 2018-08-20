@@ -7,7 +7,7 @@
 
 # 安装
 
-1. 下载源文件包解压https://github.com/pipdax/frelation/tree/master/dist/frelation-0.0.1.tar.gz ，
+1. 下载源文件包解压https://github.com/pipdax/frelation/tree/master/dist/frelation-0.0.2.tar.gz ，
 
    或者
 
