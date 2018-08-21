@@ -299,9 +299,7 @@ class frelation():
                 other_nodes = list(set(self.nodes[cat]) - set(connect_nodes))
                 connect_nodes.extend(other_nodes)
                 self.nodes[cat] = connect_nodes
-                print(self.nodes[cat])
-                print("="*20)
-
+                
         graph = Graph(self.title, self.subtitle, height=len(_nodes)*25)
         nodes = []
         nodes_pos = [0, 0]
@@ -322,7 +320,6 @@ class frelation():
 
         # graph.render() I do not know why this API is not work in my environment.
         return graph
-
 if __name__ == "__main__":
     fr = frelation("The Title", "The subtitle")
     fr.addNodes(['a', 'b', 'c'], 0)
