@@ -285,22 +285,39 @@ class frelation():
         _del_link_nodes = _link_nodes - set(_nodes)
         self.links = list(filter(lambda x: x['source'] not in _del_link_nodes
                                            and x['target'] not in _del_link_nodes, self.links))
+        
+        #set the connected nodes to head
+        linked_nodes = [x["source"] for x in self.links]
+        linked_nodes.extend([x["target"] for x in self.links])
+        for cat in self.nodes.keys():
+            if self.nodes[cat] == []:
+                pass
+            elif len(self.nodes[cat]) < 10:
+                pass
+            else:
+                connect_nodes = list(set(self.nodes[cat])&set(linked_nodes))
+                other_nodes = list(set(self.nodes[cat]) - set(connect_nodes))
+                connect_nodes.extend(other_nodes)
+                self.nodes[cat] = connect_nodes
+                print(self.nodes[cat])
+                print("="*20)
 
         graph = Graph(self.title, self.subtitle, height=len(_nodes)*25)
         nodes = []
         nodes_pos = [0, 0]
-        symbol_width = max(map(len, _nodes))*10 # get the max charactor length
+        symbol_width = max(map(len, self.all_nodes))*10 # get the max charactor length
         symbol_width = min(max(symbol_width,80), 200) # min is 80, max is 200
         for cat_id, cats in enumerate(self.nodes.keys()):
             for node_id, cat_nodes in enumerate(self.nodes[cats]):
                 self.categories.append(cats)
-                nodes_pos = [cat_id * 150, node_id * 20]
+                nodes_pos = [cat_id * 300, node_id * 20]
                 nodes.append({"name": cat_nodes,
                               "x": nodes_pos[0], "y": nodes_pos[1],
                               'symbolSize': [symbol_width, 20],
                               "symbol": 'rect',
                               "category": (cats % 20),
-                              "graph_repulsion":10000})
+                              "graph_repulsion":1000000})
+        
         graph.add("", nodes, self.links, categories=self.categories, **self.node_style)
 
         # graph.render() I do not know why this API is not work in my environment.
