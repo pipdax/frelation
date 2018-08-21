@@ -81,6 +81,7 @@ class frelation():
             print(node)
         else:
             self.nodes[category].append(node)
+            self.all_nodes = list(set(self.all_nodes)|set([node]))
         return self.nodes
 
     def addNodes(self, nodes, category=0):
@@ -164,7 +165,7 @@ class frelation():
                 return True
 
 
-    def addLink(self, left_node, mid_node, right_node=None):
+    def addLink(self, left_node, mid_node, right_node=None, cat_list=None):
         '''
         添加一个链接，可以是两个相连，也可以是三个，其中mid_node为中间节点，分别与左右两边相连
         Add one link, two or three node will be linked.
@@ -175,28 +176,61 @@ class frelation():
         ---
         left_node, mid_node, right_node:string
             The node that to be connected.
-        category: int
-            Choose nodes as different group, use different color.
+        cat_list: int list
+            If the node is not add before, this node will add to group as the category.
 
         Returns
         ---
         string list
             Current links that has added before.
         '''
-        if not isinstance(left_node, str) or not isinstance(mid_node, str):
-            raise TypeError("Please intput left_node and mid node as string")
+        if not isinstance(left_node, (str, Iterable)) or not isinstance(mid_node, (str, Iterable)):
+            raise TypeError("Please intput left_node and mid node as string or string list")
+        if right_node is not None and not isinstance(right_node, (str, Iterable)):
+            raise TypeError("Please intput left_node and mid_node as string")
 
-        _link = {"source": left_node, "target": mid_node}
-        self.links.append(_link)
+        if not isinstance(left_node, str) and isinstance(left_node, Iterable):
+            for i in left_node:
+                if not isinstance(i, str):
+                    raise TypeError("Please intput left_node as string or string list")
+        if not isinstance(mid_node, str) and isinstance(mid_node, Iterable):
+            for i in mid_node:
+                if not isinstance(i, str):
+                    raise TypeError("Please intput mid_node as string or string list")
+        if right_node is not None and not isinstance(right_node, str) and isinstance(right_node, Iterable):
+            for i in right_node:
+                if not isinstance(i, str):
+                    raise TypeError("Please intput right_node as string or string list")
 
+        #add node if cat_list is set
+        if cat_list is not None:
+            param_list = [left_node, mid_node]
+            if right_node is not None:
+                param_list.append(right_node)
+            assert len(param_list) == len(cat_list)
+
+            for i, cat in enumerate(cat_list):
+                if not isinstance(cat, int):
+                    raise TypeError("The cat_list must be int list")
+                self.addNodes(param_list[i], cat_list[i])
+        if isinstance(left_node, str):
+            left_node = [left_node,]
+        if isinstance(mid_node, str):
+            mid_node = [mid_node,]
+        if right_node is not None and isinstance(right_node, str):
+            right_node = [right_node,]
+        for left in left_node:
+            for mid in mid_node:
+                _link = {"source": left, "target": mid}
+                self.links.append(_link)
         if right_node is not None:
-            if not isinstance(right_node, str):
-                raise TypeError("Please input right_node as string")
-            _link = {"source": mid_node, "target": right_node}
-            self.links.append(_link)
+            for mid in mid_node:
+                for right in right_node:
+                    _link = {"source": mid, "target": right}
+                    self.links.append(_link)
         return self.links
 
-    def addLinks(self, links):
+    def addLinks(self, links, cat_list=None):
         '''
         添加多个链接，必须以形如[{'source':'a','target':'e'},{'source':'c','target':'e'}]的格式添加，
         每个字典为一个链接，必须包含source以及target
@@ -220,10 +254,18 @@ class frelation():
         else:
             if isinstance(links, Iterable):
                 links = list(links)
-        for link in links:
+        if cat_list is not None:
+            assert len(links)==len(cat_list)
+            for i,j in cat_list:
+                if not isinstance(i, int) and not isinstance(j, int):
+                    raise TypeError("cat_list must be int list")
+
+        for i,link in enumerate(links):
             if not isinstance(link, dict) or 'source' not in link.keys() or 'target' not in link.keys():
                 raise TypeError("Please uses dict list like [{'source':'node1','target':'node2'}]")
             _link = {"source": link['source'], "target": link['target']}
+            if cat_list is not None:
+                self.addNodes([link['source'], link['target']], cat_list[i])
             self.links.append(_link)
         return self.links
 
@@ -248,7 +290,7 @@ class frelation():
         nodes = []
         nodes_pos = [0, 0]
         symbol_width = max(map(len, _nodes))*10 # get the max charactor length
-        symbol_width = min(max(symbol_width,80), 200)
+        symbol_width = min(max(symbol_width,80), 200) # min is 80, max is 200
         for cat_id, cats in enumerate(self.nodes.keys()):
             for node_id, cat_nodes in enumerate(self.nodes[cats]):
                 self.categories.append(cats)
@@ -272,5 +314,6 @@ if __name__ == "__main__":
     fr.addLink('a', 'd', 'g')
     fr.addLink('d', 'h')
     fr.addLink('b', 'e', 'h')
+    fr.addLink(['m','a','c'],['d','e'],cat_list=[0,3])
     fr.addLinks([{'source': 'a', 'target': 'e'}, {'source': 'c', 'target': 'e'}])
     fr.show()
